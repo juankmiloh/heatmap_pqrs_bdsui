@@ -2,6 +2,7 @@ from concret_sources.pqrs_resource import PqrsRsource
 from concret_sources.empresas_resource import EmpresasRsource
 from concret_sources.causas_resource import CausasRsource
 from concret_sources.pqrs_causas_resource import PqrsCausasRsource
+from concret_sources.anios_resource import AniosRsource
 
 
 class SourceController():
@@ -57,4 +58,10 @@ class SourceController():
 			"/pqr_causas",
 
 			"/pqr_causas/<int:empresa>/<string:servicio>/<int:anio>/<int:mes>/<int:causa>",
+		)
+		
+		self.__api.add_resource(AniosRsource,
+			"/anios",
+
+			"/anios/<int:anio>",
 		)

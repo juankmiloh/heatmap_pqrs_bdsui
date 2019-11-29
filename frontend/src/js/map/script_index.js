@@ -2,9 +2,10 @@ $(document).ready(function(){
         // alert("Probar JQuery!");
         var height = $(window).height();
         $('#viewDiv').height(height-76);
+        loadAnios();
         cambiarTabs();
         loadEmpresas("TODOS", false, 0); //SE CARGAN TODAS LAS EMPRESAS EN EL SELECT
-        //loadCausas("TODOS");
+        //loadCausas("TODOS");        
 });
 
 /*CAMBIAR TABS*/
@@ -53,11 +54,82 @@ function watchBackdrop(){
         }
 }
 
+/*FUNCION QUE CARGA LOS ITEMS EN EL SELECT DE AÑO*/
+function loadAnios() { 
+        showLoad();
+        var fecha = new Date();
+        var anio = fecha.getFullYear();
+
+        var url = connectionService+"/anios";
+        console.log("URL CARGAR AÑOS SELECT -> " + url);
+        $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(response){
+
+                        console.log(response);
+
+                        $('#inputGroupSelect0') //SI TIENE ITEMS SE ELIMINAN
+                                .find('option')
+                                .remove();
+                        
+                        $.each(response, function (i, item) { //CARGA LOS ITEMS EN EL SELECT
+                                if (item.anio == anio) {
+                                        $('#inputGroupSelect0').append('<option value='+item.anio+' selected="selected">'+item.anio+'</option>');
+                                }else{
+                                        $('#inputGroupSelect0').append($('<option>', { 
+                                                value: item.anio,
+                                                text : item.anio
+                                        }));
+                                }                                
+                        });
+                        loadMeses(anio);
+                        visualizar('opcionBody', false); // Se inicializa la ejecución del mapa
+                },
+                error: function(error) { console.log('Failed!' + error); }
+        });
+}
+
+/*FUNCION QUE CARGA LOS ITEMS EN EL SELECT DE MES*/
+function loadMeses(select) { // el select recibe el valor del año seleccionado
+        console.log("OPCION SELECCIONADA SELECT AÑO -> "+select);
+        var fecha = new Date();
+        var mesDefecto = 1;
+        var meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
+        
+        var url = connectionService+"/anios/"+select;
+        console.log("URL CARGAR MESES DEL AÑO SELECCIONADO -> " + url);
+        $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(response){
+
+                        $('#inputGroupSelect01') //SI TIENE ITEMS SE ELIMINAN
+                                .find('option')
+                                .remove();
+
+                        $('#inputGroupSelect01').append('<option value=0>TODOS</option>');
+                        
+                        $.each(response, function (i, item) { //CARGA LOS ITEMS EN EL SELECT
+                                if (item.mes == mesDefecto) {
+                                        $('#inputGroupSelect01').append('<option value='+item.mes+' selected="selected">'+meses[item.mes-1]+'</option>');
+                                }else{
+                                        $('#inputGroupSelect01').append($('<option>', { 
+                                                value: item.mes,
+                                                text : meses[item.mes-1]
+                                        }));
+                                }
+                        });
+                },
+                error: function(error) { console.log('Failed!' + error); }
+        });
+}
+
 /*FUNCION QUE CARGA LOS ITEMS EN EL SELECT DE EMPRESAS PARTIENDO DE LA OPCION SELECCIONADA EN EL SELECT SERVICIO*/
 function loadEmpresas(select, causas, cod_empresa) {
 	// let servicioAntes = localStorage.getItem('servicioAntes');
         var servicio = select;
-        var url = "http://172.16.28.63:5055/empresa/"+servicio;
+        var url = connectionService+"/empresa/"+servicio;
 
 	// console.log("URL CARGAR EMPRESAS SELECT -> " + url);
 	
@@ -135,8 +207,8 @@ function loadCausas(select) { // el select recibe un json con el codigo de empre
                 }
         }
 
-        // var url = "http://172.16.28.63:5055/causas/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes //url con filtros
-        var url = "http://172.16.28.63:5055/causas/"+servicio
+        // var url = connectionService+"/causas/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes //url con filtros
+        var url = connectionService+"/causas/"+servicio;
         console.log("URL CARGAR CAUSAS SELECT -> " + url);
         $.ajax({
                 url: url,
@@ -174,7 +246,7 @@ function llenarTablaCausas(urlPqrsCausas, cod_empresa) {
                         // console.log("SE GENERA JSON PQR´s CAUSAS");
                         // console.log(data);
                         $.each(data, function(i, item) {
-                                $tr = $('<tr>').append(                                        
+                                $tr = $('<tr>').append(
                                         $('<td>').html(item.servicio),
                                         $('<td>').text(item.desc_causa),
                                         $('<td>').text(item.numero_pqrs),

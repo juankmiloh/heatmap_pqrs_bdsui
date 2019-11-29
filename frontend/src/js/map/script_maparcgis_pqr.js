@@ -19,6 +19,8 @@ function visualizar(opcion, datos) {
   var cod_causa = $("#inputGroupSelect04").val(); // CODIGO DE CAUSA
   var empresa = $("#inputGroupSelect03 option:selected").text(); // NOMBRE DE LA EMPRESA
 
+  console.log('año nuevo: '+ano);
+
   /* VALORES CAPTURADOS DESDE EL SELECT DE EMPRESAS */
   var datos_empresa = JSON.parse($("#inputGroupSelect03").val()); // SE CAPTURAN LOS VALORES DE COD_EMPRESA | SERVICIO
   
@@ -36,6 +38,7 @@ function visualizar(opcion, datos) {
 
 	if (opcion == 'opcionBody') { // SE EJECUTA CUANDO SE LLAMA LA FUNCIÓN DESDE EL BODY
     console.log("FUNCIÓN VISUALIZAR EJECUTADA DESDE EL BODY");
+    mes = 1; // se asigna un mes por defecto mientras se cargan los valores en el select
     cod_empresa = 0;
     // servicio = "TODOS";
     // localStorage.setItem('empresaAntes', cod_empresa);
@@ -103,7 +106,7 @@ function visualizar(opcion, datos) {
   // console.log("CODIGO EMPRESA SELECCIONADO -> " + cod_empresa);
 
   /* URL PARA OBTENER LAS CAUSAS */
-  urlPqrsCausas = "http://172.16.28.63:5055/pqr_causas"+"/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes+"/"+cod_causa;
+  urlPqrsCausas = connectionService+"/pqr_causas"+"/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes+"/"+cod_causa;
 
   /* SE EJECUTA LA FUNCIÓN DE LLENADO DE LA TABLA DE CAUSAS */
   llenarTablaCausas(urlPqrsCausas, cod_empresa);
@@ -119,11 +122,11 @@ function visualizar(opcion, datos) {
       "esri/widgets/BasemapToggle",
       "esri/views/View"
     ],
-    function(Map, CSVLayer, MapView, Legend, Search, watchUtils, BasemapToggle, View) {
+    function(Map, CSVLayer, MapView, Legend, Search, watchUtils, BasemapToggle, View) {      
       const url =
-                  // "http://172.16.128.141:5055/pqr/cod_empresa/2249/energia/2018";
-                  // "http://172.16.28.63:5055/pqr/empresa/0/glp/2018/1/0";
-                  "http://172.16.28.63:5055/pqr/empresa"+"/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes+"/"+cod_causa;
+                  // connectionService+"/pqr/cod_empresa/2249/energia/2018";
+                  // connectionService+"/pqr/empresa/0/glp/2018/1/0";
+                  connectionService+"/pqr/empresa"+"/"+cod_empresa+"/"+servicio+"/"+ano+"/"+mes+"/"+cod_causa;
 
       // console.log("URL PQR's -> " + url);
 
@@ -194,8 +197,8 @@ function visualizar(opcion, datos) {
           $('#table_pqrs tbody').empty();
           Swal.fire({
             type: 'info',
-            title: 'Oops...',
-            text: 'El prestador no tiene PQR\'s para este período.',
+            title: 'Atención',
+            text: 'No hay registro de PQR\'s.',
           })
         }        
       });
